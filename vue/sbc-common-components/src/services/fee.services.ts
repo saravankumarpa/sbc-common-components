@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import { Fee } from '../models/fee'
 
 // const API_URL = 'https://mock-lear-tools.pathfinder.gov.bc.ca/rest/SBC+Pay+API+Reference/1.0.1'
 // sample microcks url https://mock-lear-tools.pathfinder.gov.bc.ca/rest/SBC+Pay+API+Reference/1.0.1/api/v1/fees/CP/OTANN
@@ -7,7 +8,7 @@ import Axios from 'axios'
 const API_URL = 'https://pay-api-dev.pathfinder.gov.bc.ca/api/v1/fees'
 export default {
 
-  getFee (filingData: { filingDescription: string; filingTypeCode: string; entityType: string; }[], payApiUrl:string) {
+  getFee (filingData: { filingDescription: string; filingTypeCode: string; entityType: string; }[], payApiUrl:string):Promise<Fee[]> {
     const token = sessionStorage.getItem('KEYCLOAK_TOKEN')
     if (filingData.length < 1) {
       Promise.resolve()
@@ -22,6 +23,7 @@ export default {
       promises.push(Axios.get(url, { headers: { Authorization: `Bearer ${token}` } }))
     }
 
+    // @ts-ignore
     return Axios.all(promises)
       .then(Axios.spread((...args) => {
         // customise the response here
