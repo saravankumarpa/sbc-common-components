@@ -5,6 +5,7 @@ class TokenServices {
   private static instance: TokenServices
   private kcLoaded
   private counter = 0
+  private REFRESH_ATTEMPT_INTERVAL = 10 // in seconds
   private timerId
   private kcOptions: KeycloakInitOptions = {
     onLoad: 'login-required',
@@ -31,15 +32,16 @@ class TokenServices {
         self.syncSessionStorage()
         resolve(self.kc.token)
       }).error(function (err) {
-        console.info('[TokenServices] Fatal Error:Cudnt Initialise KC instance' + err)
-        reject(new Error('Cudnt Initialise KC'))
+        console.info('[TokenServices] Fatal Error:Could not Initialise KC instance' + err)
+        reject(new Error('Could not Initialise KC'))
       })
     })
   }
 
-  scheduleRefreshTimer () {
+  scheduleRefreshTimer (refreshEarlyTime :number = 0) {
     console.info('[TokenServices Starting the timer] ')
-    this.scheduleRefreshToken()
+    let refreshEarlyTimeinMilliseconds = Math.max(this.REFRESH_ATTEMPT_INTERVAL, refreshEarlyTime) * 1000
+    this.scheduleRefreshToken(refreshEarlyTimeinMilliseconds)
   }
 
   refreshToken () {
@@ -55,7 +57,7 @@ class TokenServices {
         })
         .error(() => {
           // this.cleanupSession()
-          reject(new Error('Cudnt refresh Token'))
+          reject(new Error('Could not refresh Token'))
         })
     })
   }
@@ -65,7 +67,7 @@ class TokenServices {
     clearTimeout(this.timerId)
   }
 
-  private scheduleRefreshToken () {
+  private scheduleRefreshToken (refreshEarlyTimeinMilliseconds:number) {
     let self = this
 
     // check if refresh token is still valid . Or else clear all timers and throw errors
@@ -75,7 +77,7 @@ class TokenServices {
     }
 
     let expiresIn = self.kc.tokenParsed['exp'] - Math.ceil(new Date().getTime() / 1000) + self.kc.timeSkew
-    let refreshInMilliSeconds = (expiresIn * 1000) - 2000 // refresh before two second of expiry
+    let refreshInMilliSeconds = (expiresIn * 1000) - refreshEarlyTimeinMilliseconds // in milliseconds
     console.info('[TokenServices] Token Expires in %s Seconds:', expiresIn)
     console.info('[TokenServices] Token Refreshal Scheduled in %s Seconds', (refreshInMilliSeconds / 1000))
     this.timerId = setTimeout(() => {
@@ -85,7 +87,7 @@ class TokenServices {
           if (refreshed) {
             console.log('successfully refreshed')
             this.syncSessionStorage()
-            this.scheduleRefreshToken()
+            this.scheduleRefreshToken(refreshEarlyTimeinMilliseconds)
           }
         })
         .error(() => {

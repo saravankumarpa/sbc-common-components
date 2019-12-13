@@ -17,7 +17,7 @@ It supports two modes for **refreshing the token**
    
    1. Register the compoent in vue
         
-        `Vue.prototype.$tokenService = new TokenService()`
+        `Vue.prototype.$tokenServices = new TokenServices()`
    
    2. Init the tokenservice so that keycloak service is being set up
    3. start the timer
@@ -26,8 +26,8 @@ It supports two modes for **refreshing the token**
             // eslint-disable-next-line no-console
             console.info('[APP.vue] Token exists.So start the refreshtimer')
             var self = this
-            this.$tokenService.initUsingUrl(`/${process.env.VUE_APP_PATH}/config/kc/keycloak.json`).then(function (success) {
-              self.$tokenService.scheduleRefreshTimer()
+            this.$tokenServices.initUsingUrl(`/${process.env.VUE_APP_PATH}/config/kc/keycloak.json`).then(function (success) {
+              self.$tokenServices.scheduleRefreshTimer()
             })
 
          ```
