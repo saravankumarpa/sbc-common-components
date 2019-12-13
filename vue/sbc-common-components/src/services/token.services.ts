@@ -69,7 +69,7 @@ class TokenServices {
     let self = this
 
     // check if refresh token is still valid . Or else clear all timers and throw errors
-    let refreshTokenExpiresIn = self.kc.refreshToken['exp'] - Math.ceil(new Date().getTime() / 1000) + self.kc.timeSkew
+    let refreshTokenExpiresIn = self.kc.refreshTokenParsed['exp'] - Math.ceil(new Date().getTime() / 1000) + self.kc.timeSkew
     if (refreshTokenExpiresIn < 0) {
       throw new Error('Refresh Token Expired..No more token refreshes')
     }
