@@ -76,7 +76,7 @@ class TokenServices {
       throw new Error('Refresh Token Expired..No more token refreshes')
     }
 
-    let expiresIn = self.kc.tokenParsed['exp'] - Math.ceil(new Date().getTime() / 1000) + self.kc.timeSkew
+    let expiresIn = self.kc!.tokenParsed['exp'] - Math.ceil(new Date().getTime() / 1000) + self.kc.timeSkew
     let refreshInMilliSeconds = (expiresIn * 1000) - refreshEarlyTimeinMilliseconds // in milliseconds
     console.info('[TokenServices] Token Expires in %s Seconds:', expiresIn)
     console.info('[TokenServices] Token Refreshal Scheduled in %s Seconds', (refreshInMilliSeconds / 1000))
